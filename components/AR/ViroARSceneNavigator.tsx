@@ -852,6 +852,26 @@ export class ViroARSceneNavigator extends React.Component<Props, State> {
     );
   };
 
+  /**
+   * Set or refresh the JWT used by Google ARCore keyless authentication.
+   *
+   * iOS only. Pass the compact JWT returned by your backend without a
+   * `Bearer` prefix. Call this again whenever the one-hour token is refreshed.
+   *
+   * @returns Promise resolving to true after the native ARCore session accepts
+   *          the token.
+   */
+  _setCloudAnchorAuthToken = async (authToken: string): Promise<boolean> => {
+    if (!authToken) {
+      throw new Error("ARCore cloud anchor auth token must not be empty");
+    }
+
+    return await ViroARSceneNavigatorModule.setCloudAnchorAuthToken(
+      findNodeHandle(this),
+      authToken
+    );
+  };
+
   _hostCloudAnchor = async (
     anchorId: string,
     ttlDays: number = 1
@@ -1581,6 +1601,7 @@ export class ViroARSceneNavigator extends React.Component<Props, State> {
     setWorldOrigin: this._setWorldOrigin,
     project: this._project,
     unproject: this._unproject,
+    setCloudAnchorAuthToken: this._setCloudAnchorAuthToken,
     hostCloudAnchor: this._hostCloudAnchor,
     resolveCloudAnchor: this._resolveCloudAnchor,
     cancelCloudAnchorOperations: this._cancelCloudAnchorOperations,
@@ -1650,6 +1671,7 @@ export class ViroARSceneNavigator extends React.Component<Props, State> {
     setWorldOrigin: this._setWorldOrigin,
     project: this._project,
     unproject: this._unproject,
+    setCloudAnchorAuthToken: this._setCloudAnchorAuthToken,
     hostCloudAnchor: this._hostCloudAnchor,
     resolveCloudAnchor: this._resolveCloudAnchor,
     cancelCloudAnchorOperations: this._cancelCloudAnchorOperations,
