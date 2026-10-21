@@ -424,6 +424,16 @@ export declare class ViroARSceneNavigator extends React.Component<Props, State> 
      * The current recording state: "None" | "Recording" | "IOError" | "Unsupported".
      */
     _getRecordingStatus: () => Promise<any>;
+    /**
+     * Set or refresh the JWT used by Google ARCore keyless authentication.
+     *
+     * iOS only. Pass the compact JWT returned by your backend without a
+     * `Bearer` prefix. Call this again whenever the one-hour token is refreshed.
+     *
+     * @returns Promise resolving to true after the native ARCore session accepts
+     *          the token.
+     */
+    _setCloudAnchorAuthToken: (authToken: string) => Promise<boolean>;
     _hostCloudAnchor: (anchorId: string, ttlDays?: number) => Promise<ViroHostCloudAnchorResult>;
     /**
      * Resolve a cloud anchor by its ID.
@@ -712,6 +722,7 @@ export declare class ViroARSceneNavigator extends React.Component<Props, State> 
         setWorldOrigin: (worldOrigin: ViroWorldOrigin) => void;
         project: (point: Viro3DPoint) => Promise<any>;
         unproject: (point: Viro3DPoint) => Promise<any>;
+        setCloudAnchorAuthToken: (authToken: string) => Promise<boolean>;
         hostCloudAnchor: (anchorId: string, ttlDays?: number) => Promise<ViroHostCloudAnchorResult>;
         resolveCloudAnchor: (cloudAnchorId: string) => Promise<ViroResolveCloudAnchorResult>;
         cancelCloudAnchorOperations: () => void;
@@ -774,6 +785,7 @@ export declare class ViroARSceneNavigator extends React.Component<Props, State> 
         setWorldOrigin: (worldOrigin: ViroWorldOrigin) => void;
         project: (point: Viro3DPoint) => Promise<any>;
         unproject: (point: Viro3DPoint) => Promise<any>;
+        setCloudAnchorAuthToken: (authToken: string) => Promise<boolean>;
         hostCloudAnchor: (anchorId: string, ttlDays?: number) => Promise<ViroHostCloudAnchorResult>;
         resolveCloudAnchor: (cloudAnchorId: string) => Promise<ViroResolveCloudAnchorResult>;
         cancelCloudAnchorOperations: () => void;

@@ -25,7 +25,7 @@
     "clean": "rm -rf ./dist/ *.tgz node_modules/",
     "release": "release-it",
     "after:release": "./prepare_release.sh",
-    "prepare": "npm run build"
+    "prepare": "node -e \"console.log('Using committed build artifacts')\""
   },
   "peerDependencies": {
     "@reactvision/viro-web-renderer": ">=0.0.1",

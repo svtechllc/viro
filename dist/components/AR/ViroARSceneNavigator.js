@@ -512,6 +512,21 @@ class ViroARSceneNavigator extends React.Component {
     _getRecordingStatus = async () => {
         return await ViroARSceneNavigatorModule.getRecordingStatus((0, react_native_1.findNodeHandle)(this));
     };
+    /**
+     * Set or refresh the JWT used by Google ARCore keyless authentication.
+     *
+     * iOS only. Pass the compact JWT returned by your backend without a
+     * `Bearer` prefix. Call this again whenever the one-hour token is refreshed.
+     *
+     * @returns Promise resolving to true after the native ARCore session accepts
+     *          the token.
+     */
+    _setCloudAnchorAuthToken = async (authToken) => {
+        if (!authToken) {
+            throw new Error("ARCore cloud anchor auth token must not be empty");
+        }
+        return await ViroARSceneNavigatorModule.setCloudAnchorAuthToken((0, react_native_1.findNodeHandle)(this), authToken);
+    };
     _hostCloudAnchor = async (anchorId, ttlDays = 1) => {
         return await ViroARSceneNavigatorModule.hostCloudAnchor((0, react_native_1.findNodeHandle)(this), anchorId, Math.max(1, Math.min(365, ttlDays)) // Clamp to valid range
         );
@@ -973,6 +988,7 @@ class ViroARSceneNavigator extends React.Component {
         setWorldOrigin: this._setWorldOrigin,
         project: this._project,
         unproject: this._unproject,
+        setCloudAnchorAuthToken: this._setCloudAnchorAuthToken,
         hostCloudAnchor: this._hostCloudAnchor,
         resolveCloudAnchor: this._resolveCloudAnchor,
         cancelCloudAnchorOperations: this._cancelCloudAnchorOperations,
@@ -1042,6 +1058,7 @@ class ViroARSceneNavigator extends React.Component {
         setWorldOrigin: this._setWorldOrigin,
         project: this._project,
         unproject: this._unproject,
+        setCloudAnchorAuthToken: this._setCloudAnchorAuthToken,
         hostCloudAnchor: this._hostCloudAnchor,
         resolveCloudAnchor: this._resolveCloudAnchor,
         cancelCloudAnchorOperations: this._cancelCloudAnchorOperations,
