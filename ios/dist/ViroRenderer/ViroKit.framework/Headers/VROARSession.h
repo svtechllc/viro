@@ -230,6 +230,15 @@ public:
     virtual void setCloudAnchorProvider(VROCloudAnchorProvider provider) = 0;
 
     /*
+     Set or refresh the token used by providers that support application-supplied
+     cloud authentication. This is currently implemented by ARCore on iOS.
+     Returns false when the active platform/provider does not support the token.
+     */
+    virtual bool setCloudAnchorAuthToken(std::string authToken) {
+        return false;
+    }
+
+    /*
      Set the provider to use for geospatial anchors.
      */
     virtual void setGeospatialAnchorProvider(VROGeospatialAnchorProvider provider) {

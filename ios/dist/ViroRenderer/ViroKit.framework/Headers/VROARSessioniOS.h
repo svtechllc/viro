@@ -65,6 +65,7 @@ public:
     void setDelegate(std::shared_ptr<VROARSessionDelegate> delegate);
     bool setAnchorDetection(std::set<VROAnchorDetection> types);
     void setCloudAnchorProvider(VROCloudAnchorProvider provider);
+    bool setCloudAnchorAuthToken(std::string authToken) override;
 
     void loadARImageDatabase(std::shared_ptr<VROARImageDatabase> arImageDatabase) {
         // unsupported
@@ -287,6 +288,12 @@ private:
      The cloud anchor provider to use for hosting/resolving cloud anchors.
      */
     VROCloudAnchorProvider _cloudAnchorProvider = VROCloudAnchorProvider::None;
+
+    /*
+     Most recently supplied ARCore keyless-auth JWT. It is retained so it can
+     be reapplied if the native provider is recreated during the AR session.
+     */
+    std::string _cloudAnchorAuthToken;
 
     /*
      The ARCore cloud anchor provider instance (for iOS using ARCore SDK).

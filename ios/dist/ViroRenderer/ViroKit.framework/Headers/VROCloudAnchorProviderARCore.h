@@ -76,10 +76,18 @@ API_AVAILABLE(ios(12.0))
 
 /**
  * Initialize the cloud anchor provider.
- * The API key is read from Info.plist (GARAPIKey).
- * @return Initialized provider, or nil if ARCore SDK is not available or API key missing
+ * If GARAPIKey exists in Info.plist, the provider uses API-key authentication.
+ * Otherwise it creates a keyless session that must receive a JWT with setAuthToken:.
+ * @return Initialized provider, or nil if the ARCore SDK is unavailable
  */
 - (nullable instancetype)init;
+
+/**
+ * Set or refresh the JWT used for keyless Google Cloud authentication.
+ * The token must be a compact JWT without a Bearer prefix or whitespace.
+ * @return YES when the token was accepted by the local ARCore session
+ */
+- (BOOL)setAuthToken:(NSString *)authToken;
 
 /**
  * Check if the ARCore Cloud Anchors SDK is available.
