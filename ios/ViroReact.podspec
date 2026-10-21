@@ -25,9 +25,11 @@ Pod::Spec.new do |s|
   # Base source files (always included)
   source_files_array = ['ViroReact/**/*.{h,m,mm,swift}']
   header_files_array = ['ViroReact/**/*.h']
+  builds_from_source = Dir.exist?(File.join(__dir__, 'ViroReact'))
 
-  # Include dist files if they exist (for release builds)
-  if File.exist?(File.join(__dir__, 'dist/include'))
+  # The dist headers duplicate the source headers. Include them only when the
+  # source tree is absent and CocoaPods is linking the prebuilt library.
+  if !builds_from_source && File.exist?(File.join(__dir__, 'dist/include'))
     source_files_array << 'dist/include/**/*.{h,m,mm}'
     header_files_array << 'dist/include/*.h'
   end
@@ -43,7 +45,7 @@ Pod::Spec.new do |s|
   # Prefer compiling the native bridge when its sources are included in the
   # package. Custom builds can therefore expose new native APIs without also
   # having to distribute a rebuilt static ViroReact library.
-  if !Dir.exist?(File.join(__dir__, 'ViroReact')) && File.exist?(File.join(__dir__, 'dist/lib/libViroReact.a'))
+  if !builds_from_source && File.exist?(File.join(__dir__, 'dist/lib/libViroReact.a'))
     s.vendored_libraries = 'dist/lib/libViroReact.a'
   end
 
