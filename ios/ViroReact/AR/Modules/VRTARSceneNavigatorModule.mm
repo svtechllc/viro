@@ -324,6 +324,45 @@ RCT_EXPORT_METHOD(unproject:(nonnull NSNumber *)reactTag
 
 #pragma mark - Cloud Anchor Methods
 
+RCT_EXPORT_METHOD(setCloudAnchorAuthToken:(nonnull NSNumber *)reactTag
+                                authToken:(NSString *)authToken
+                                  resolve:(RCTPromiseResolveBlock)resolve
+                                   reject:(RCTPromiseRejectBlock)reject) {
+    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager,
+                                        NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        @try {
+            VRTView *view = (VRTView *)viewRegistry[reactTag];
+            if (![view isKindOfClass:[VRTARSceneNavigator class]]) {
+                reject(@"invalid_view", @"Invalid view returned from registry, expecting VRTARSceneNavigator", nil);
+                return;
+            }
+
+            VRTARSceneNavigator *component = (VRTARSceneNavigator *)view;
+            if (!component.rootVROView) {
+                reject(@"invalid_state", @"AR view has been unmounted", nil);
+                return;
+            }
+
+            if (authToken.length == 0) {
+                reject(@"invalid_token", @"ARCore auth token must not be empty", nil);
+                return;
+            }
+
+            BOOL accepted = [component setCloudAnchorAuthToken:authToken];
+            if (!accepted) {
+                reject(@"token_rejected", @"ARCore session rejected the auth token", nil);
+                return;
+            }
+
+            resolve(@YES);
+        } @catch (NSException *exception) {
+            reject(@"token_error",
+                   [NSString stringWithFormat:@"Unable to set ARCore auth token: %@", exception.reason],
+                   nil);
+        }
+    }];
+}
+
 RCT_EXPORT_METHOD(hostCloudAnchor:(nonnull NSNumber *)reactTag
                          anchorId:(NSString *)anchorId
                           ttlDays:(NSInteger)ttlDays

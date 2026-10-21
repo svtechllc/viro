@@ -97,6 +97,8 @@ typedef void (^CloudAnchorResolveCompletionHandler)(BOOL success,
                                                      NSString * _Nullable error,
                                                      NSString * _Nonnull state);
 
+- (BOOL)setCloudAnchorAuthToken:(NSString *)authToken;
+
 - (void)hostCloudAnchor:(NSString *)anchorId
                 ttlDays:(NSInteger)ttlDays
       completionHandler:(CloudAnchorHostCompletionHandler)completionHandler;

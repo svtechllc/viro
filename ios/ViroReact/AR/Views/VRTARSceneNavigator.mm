@@ -847,6 +847,20 @@ static NSString *rvMatrixToCsv(const VROMatrix4f &m) {
 
 #pragma mark - Cloud Anchor Methods
 
+- (BOOL)setCloudAnchorAuthToken:(NSString *)authToken {
+    if (!_vroView || authToken.length == 0) {
+        return NO;
+    }
+
+    VROViewAR *viewAR = (VROViewAR *) _vroView;
+    std::shared_ptr<VROARSession> arSession = [viewAR getARSession];
+    if (!arSession) {
+        return NO;
+    }
+
+    return arSession->setCloudAnchorAuthToken(std::string([authToken UTF8String]));
+}
+
 - (void)setCloudAnchorProvider:(NSString *)cloudAnchorProvider {
     _cloudAnchorProvider = cloudAnchorProvider;
 
