@@ -40,7 +40,10 @@ Pod::Spec.new do |s|
   # into a target where those symbols don't exist.
   s.ios.exclude_files = ['ViroReact/VisionOS/**/*']
 
-  if File.exist?(File.join(__dir__, 'dist/lib/libViroReact.a'))
+  # Prefer compiling the native bridge when its sources are included in the
+  # package. Custom builds can therefore expose new native APIs without also
+  # having to distribute a rebuilt static ViroReact library.
+  if !Dir.exist?(File.join(__dir__, 'ViroReact')) && File.exist?(File.join(__dir__, 'dist/lib/libViroReact.a'))
     s.vendored_libraries = 'dist/lib/libViroReact.a'
   end
 
