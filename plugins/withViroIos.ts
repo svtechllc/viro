@@ -73,6 +73,15 @@ const withViroPods = (config: ExpoConfig) => {
           // Included whenever ARCore is present OR includeSemantics: true
           viroPods +=
             `\n  pod 'ARCore/Semantics', '~> 1.51.0'`;
+
+          // ARCore's Firebase dependencies include Swift pods that import these
+          // Objective-C pods. When Expo uses its default static-library linkage,
+          // CocoaPods requires module maps for those transitive dependencies.
+          // Scope modular headers to the affected pods instead of enabling
+          // use_modular_headers! globally, which can disrupt other Expo pods.
+          viroPods +=
+            `\n  pod 'GoogleUtilities', :modular_headers => true` +
+            `\n  pod 'FirebaseABTesting', :modular_headers => true`;
         }
 
         // Add use_frameworks! only when explicitly configured. ARCore's CocoaPods
