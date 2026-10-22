@@ -1,5 +1,5 @@
 //
-//  VRTARUtils.m
+//  VRTARUtils.mm
 //  ViroReact
 //
 //  Copyright © 2017 Viro Media. All rights reserved.
