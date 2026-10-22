@@ -14,24 +14,12 @@ const withViroPods = (config) => {
         async (newConfig) => {
             const root = newConfig.modRequest.platformProjectRoot;
             // Check plugin configuration options
-            let cloudAnchorProvider;
-            let geospatialAnchorProvider;
             let iosLinkage;
-            let includeARCore;
-            let includeSemantics;
             if (Array.isArray(config.plugins)) {
                 const pluginConfig = config?.plugins?.find((plugin) => Array.isArray(plugin) && plugin[0] === "@reactvision/react-viro");
                 if (Array.isArray(pluginConfig) && pluginConfig.length > 1) {
                     const options = pluginConfig[1];
-                    // Resolve unified provider prop; old props override for backward compat.
-                    // Default to "reactvision" only when rvApiKey is present (implies RV intent).
-                    const defaultProvider = options.rvApiKey ? "reactvision" : undefined;
-                    const legacyOpts = options;
-                    cloudAnchorProvider = legacyOpts.cloudAnchorProvider ?? options.provider ?? defaultProvider;
-                    geospatialAnchorProvider = legacyOpts.geospatialAnchorProvider ?? options.provider ?? defaultProvider;
                     iosLinkage = options.iosLinkage;
-                    includeARCore = options.ios?.includeARCore;
-                    includeSemantics = options.ios?.includeSemantics;
                 }
             }
             let data = fs_1.default.readFileSync(`${root}/Podfile`, "utf-8");
@@ -40,35 +28,10 @@ const withViroPods = (config) => {
                 `  # Automatically includes Fabric components when RCT_NEW_ARCH_ENABLED=1\n` +
                 `  pod 'ViroReact', :path => '../node_modules/@reactvision/react-viro/ios'\n` +
                 `  pod 'ViroKit', :path => '../node_modules/@reactvision/react-viro/ios/dist/ViroRenderer/'`;
-            // Add ARCore pods if enabled (explicitly via includeARCore/includeSemantics or implicitly via providers)
-            // ViroKit.podspec declares these as weak_frameworks, making ARCore optional at runtime
-            const needsARCoreForFeatures = cloudAnchorProvider === "arcore" || geospatialAnchorProvider === "arcore";
-            const shouldIncludeARCore = includeARCore === true || needsARCoreForFeatures;
-            const shouldIncludeSemantics = shouldIncludeARCore || includeSemantics === true;
-            if (shouldIncludeSemantics) {
-                viroPods +=
-                    `\n\n  # ARCore SDK - Cloud Anchors, Geospatial, and Scene Semantics API\n` +
-                        `  # ViroKit uses weak linking for these frameworks, making ARCore optional at runtime.\n` +
-                        `  # ViroKit checks availability using NSClassFromString and gracefully degrades if not present.\n` +
-                        `  pod 'ARCore/CloudAnchors', '~> 1.51.0'`;
-                // Add Geospatial pod if geospatial is enabled or full ARCore inclusion
-                if (geospatialAnchorProvider === "arcore" || includeARCore === true) {
-                    viroPods +=
-                        `\n  pod 'ARCore/Geospatial', '~> 1.51.0'`;
-                }
-                // Add Semantics pod for Scene Semantics API (ML-based scene understanding)
-                // Included whenever ARCore is present OR includeSemantics: true
-                viroPods +=
-                    `\n  pod 'ARCore/Semantics', '~> 1.51.0'`;
-                // ARCore's Firebase dependencies include Swift pods that import these
-                // Objective-C pods. When Expo uses its default static-library linkage,
-                // CocoaPods requires module maps for those transitive dependencies.
-                // Scope modular headers to the affected pods instead of enabling
-                // use_modular_headers! globally, which can disrupt other Expo pods.
-                viroPods +=
-                    `\n  pod 'GoogleUtilities', :modular_headers => true` +
-                        `\n  pod 'FirebaseABTesting', :modular_headers => true`;
-            }
+            // This fork's vendored ViroKit.framework already contains the ARCore SDK
+            // and its resource bundles. Adding ARCore pods here would put a second
+            // copy of GARSession, Firebase, and nanopb into the app executable. That
+            // duplicate native runtime can crash while GARSession initializes.
             // Add use_frameworks! only when explicitly configured. ARCore's CocoaPods
             // integration does not require dynamic frameworks, and forcing every pod
             // to build dynamically breaks Expo's core-module integration on SDK 55.
@@ -87,42 +50,6 @@ const withViroPods = (config) => {
                     `  end`;
             // Insert the pods into the Podfile
             data = (0, insertLinesHelper_1.insertLinesHelper)(viroPods, "post_install do |installer|", data, -1);
-            // Add ViroKit ARCore weak linking post_install hook if ARCore is enabled
-            if (shouldIncludeARCore) {
-                const weakLinkingHook = `    # ViroKit ARCore weak linking - makes ARCore frameworks optional at runtime
-    # Only applied when ARCore pods are installed to prevent linker errors
-    virokit_targets = installer.pods_project.targets.select { |target|
-      target.name.include?('ViroKit') ||
-      target.dependencies.any? { |dep| dep.name.include?('ViroKit') }
-    }
-
-    arcore_frameworks = ['ARCoreBase', 'ARCoreGARSession', 'ARCoreCloudAnchors',
-                         'ARCoreGeospatial', 'ARCoreSemantics', 'ARCoreTFShared',
-                         'FBLPromises', 'GoogleDataTransport', 'GoogleUtilities',
-                         'FirebaseABTesting', 'FirebaseCore', 'FirebaseCoreInternal',
-                         'FirebaseInstallations', 'FirebaseRemoteConfig',
-                         'FirebaseRemoteConfigInterop', 'FirebaseSharedSwift',
-                         'GTMSessionFetcher', 'nanopb']
-
-    virokit_targets.each do |target|
-      target.build_configurations.each do |config|
-        other_ldflags = config.build_settings['OTHER_LDFLAGS'] || ['$(inherited)']
-        other_ldflags = [other_ldflags] if other_ldflags.is_a?(String)
-
-        arcore_frameworks.each do |framework|
-          unless other_ldflags.include?('-weak_framework') && other_ldflags.include?(framework)
-            other_ldflags << '-weak_framework'
-            other_ldflags << framework
-          end
-        end
-
-        config.build_settings['OTHER_LDFLAGS'] = other_ldflags
-      end
-    end
-`;
-                // Insert weak linking hook inside post_install block (right after the block starts)
-                data = (0, insertLinesHelper_1.insertLinesHelper)(weakLinkingHook, "post_install do |installer|", data, 1);
-            }
             fs_1.default.writeFileSync(`${root}/Podfile`, data, "utf-8");
             return newConfig;
         },
