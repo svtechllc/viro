@@ -23,8 +23,20 @@ Pod::Spec.new do |s|
   s.ios.frameworks = ['AVFoundation', 'Accelerate', 'CoreVideo']
 
   # Base source files (always included)
-  source_files_array = ['ViroReact/**/*.{h,m,mm,swift}']
-  header_files_array = ['ViroReact/**/*.h']
+  source_files_array = [
+    'ViroReact/**/*.{h,m,mm,swift}',
+    'VRT3DSceneNavigator*.{h,mm}',
+    'VRTGeometry*.{h,mm}',
+    'VRTManagedAnimation*.{h,mm}',
+    'VRTVRSceneNavigator*.{h,mm}'
+  ]
+  header_files_array = [
+    'ViroReact/**/*.h',
+    'VRT3DSceneNavigator*.h',
+    'VRTGeometry*.h',
+    'VRTManagedAnimation*.h',
+    'VRTVRSceneNavigator*.h'
+  ]
   builds_from_source = Dir.exist?(File.join(__dir__, 'ViroReact'))
 
   # The dist headers duplicate the source headers. Include them only when the
@@ -36,6 +48,15 @@ Pod::Spec.new do |s|
 
   s.source_files        = source_files_array
   s.public_header_files = header_files_array
+
+  # These legacy implementations are no longer used by the React components
+  # and are not members of the native Xcode target. Their matching headers
+  # were removed upstream, so compiling them through a broad CocoaPods glob
+  # produces missing-header errors.
+  s.exclude_files = [
+    'ViroReact/Views/VRTButton.mm',
+    'ViroReact/VROTextManager.mm'
+  ]
 
   # visionOS-only sources: keep them out of the iOS build so consumers running
   # `pod install` for iOS don't pull CompositorServices / VRODriverVisionOS.h
