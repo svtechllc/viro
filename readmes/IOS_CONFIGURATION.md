@@ -31,10 +31,10 @@ The `iosLinkage` option controls how iOS frameworks are linked in your app.
 | Value | Description |
 |-------|-------------|
 | `"static"` | Static frameworks. Faster launch time, single binary. |
-| `"dynamic"` | Dynamic frameworks. Required when using ARCore SDK. |
+| `"dynamic"` | Dynamic frameworks. Use only when another dependency requires them. |
 | *(not set)* | Uses project default. |
 
-> **Note:** If ARCore is included (via `ios.includeARCore` or cloud/geospatial providers), `iosLinkage` is automatically set to `"dynamic"` regardless of your configuration.
+> **Note:** ARCore's CocoaPods integration does not require `use_frameworks!`. For Expo projects, leave `iosLinkage` unset unless another dependency specifically requires framework linkage.
 
 ---
 
@@ -309,16 +309,15 @@ cd ios/Pods
 find . -name "Info.plist" -exec plutil -convert xml1 {} \;
 ```
 
-### Dynamic Framework Required
+### Framework Linkage Errors
 
-If you see errors about framework linkage when using ARCore, ensure you're not forcing static linkage:
+If you see missing Expo module-map errors, leave `iosLinkage` unset so Expo can use its default CocoaPods linkage:
 
 ```json
 {
   "plugins": [
     ["@reactvision/react-viro", {
       "ios": { "includeARCore": true }
-      // Don't set iosLinkage: "static" when using ARCore
     }]
   ]
 }

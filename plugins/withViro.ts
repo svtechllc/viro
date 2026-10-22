@@ -25,7 +25,7 @@ export type GeospatialAnchorProvider = Provider;
 
 /**
  * iOS framework linkage type.
- * - "dynamic": Use dynamic frameworks (required for ARCore SDK)
+ * - "dynamic": Use dynamic frameworks
  * - "static": Use static frameworks (smaller binary size, faster launch)
  */
 export type IosLinkage = "dynamic" | "static";
@@ -36,10 +36,8 @@ export type IosLinkage = "dynamic" | "static";
 export interface ViroConfigurationOptions {
   /**
    * iOS framework linkage type.
-   * When set to "dynamic", uses dynamic frameworks which is required for ARCore SDK.
+   * When set to "dynamic", uses dynamic frameworks.
    * When set to "static", uses static frameworks for smaller binary size.
-   *
-   * Note: If using provider: "arcore", this will be automatically set to "dynamic".
    *
    * DEFAULTS TO: undefined (uses project default, typically static)
    */

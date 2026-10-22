@@ -75,20 +75,14 @@ const withViroPods = (config: ExpoConfig) => {
             `\n  pod 'ARCore/Semantics', '~> 1.51.0'`;
         }
 
-        // Add use_frameworks! if configured
-        // User's iosLinkage setting is respected; if not set and ARCore/Semantics is enabled, default to dynamic
-        const effectiveLinkage = iosLinkage || (shouldIncludeSemantics ? "dynamic" : undefined);
+        // Add use_frameworks! only when explicitly configured. ARCore's CocoaPods
+        // integration does not require dynamic frameworks, and forcing every pod
+        // to build dynamically breaks Expo's core-module integration on SDK 55.
+        const effectiveLinkage = iosLinkage;
         if (effectiveLinkage) {
           // Insert use_frameworks! before the target block
-          let linkageComment: string;
-          if (shouldIncludeSemantics && effectiveLinkage === "static") {
-            // Warn user that static linkage may not work with ARCore
-            linkageComment = `# WARNING: ARCore SDK typically requires dynamic frameworks.\n# Static linkage is set but may cause build issues with ARCore pods.`;
-          } else if (shouldIncludeSemantics) {
-            linkageComment = `# Framework linkage: ${effectiveLinkage} (ARCore requires dynamic frameworks)`;
-          } else {
-            linkageComment = `# Framework linkage configured via app.json (iosLinkage: "${effectiveLinkage}")`;
-          }
+          const linkageComment =
+            `# Framework linkage configured via app.json (iosLinkage: "${effectiveLinkage}")`;
           data = insertLinesHelper(
             `${linkageComment}\nuse_frameworks! :linkage => :${effectiveLinkage}\n`,
             "target '",
