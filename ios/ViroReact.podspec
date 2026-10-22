@@ -52,6 +52,11 @@ Pod::Spec.new do |s|
   # React Native dependencies
   s.dependency 'React-Core'
 
+  # ViroReact source imports ViroKit headers directly. Declaring the pod
+  # dependency makes CocoaPods add ViroKit's framework/header search paths to
+  # the ViroReact target and ensures ViroKit is built first.
+  s.dependency 'ViroKit'
+
   # ONNX Runtime is distributed as a vendored dynamic xcframework (onnxruntime.xcframework).
   # When the xcframework is present in ios/dist/Frameworks/, enable inference by setting:
   #   GCC_PREPROCESSOR_DEFINITIONS = $(inherited) VIRO_ONNXRUNTIME_AVAILABLE=1
