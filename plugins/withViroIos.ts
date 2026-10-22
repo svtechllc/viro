@@ -42,7 +42,7 @@ const withViroPods = (config: ExpoConfig) => {
         }
       }
 
-      fs.readFile(`${root}/Podfile`, "utf-8", (err, data) => {
+      let data = fs.readFileSync(`${root}/Podfile`, "utf-8");
         // ViroReact with integrated Fabric support
         let viroPods =
           `  # ViroReact with integrated New Architecture (Fabric) support\n` +
@@ -156,10 +156,7 @@ const withViroPods = (config: ExpoConfig) => {
           );
         }
 
-        fs.writeFile(`${root}/Podfile`, data, "utf-8", function (err) {
-          if (err) console.log("Error writing Podfile");
-        });
-      });
+      fs.writeFileSync(`${root}/Podfile`, data, "utf-8");
       return newConfig;
     },
   ]);

@@ -34,7 +34,7 @@ const withViroPods = (config) => {
                     includeSemantics = options.ios?.includeSemantics;
                 }
             }
-            fs_1.default.readFile(`${root}/Podfile`, "utf-8", (err, data) => {
+            let data = fs_1.default.readFileSync(`${root}/Podfile`, "utf-8");
                 // ViroReact with integrated Fabric support
                 let viroPods = `  # ViroReact with integrated New Architecture (Fabric) support\n` +
                     `  # Automatically includes Fabric components when RCT_NEW_ARCH_ENABLED=1\n` +
@@ -124,11 +124,7 @@ const withViroPods = (config) => {
                     // Insert weak linking hook inside post_install block (right after the block starts)
                     data = (0, insertLinesHelper_1.insertLinesHelper)(weakLinkingHook, "post_install do |installer|", data, 1);
                 }
-                fs_1.default.writeFile(`${root}/Podfile`, data, "utf-8", function (err) {
-                    if (err)
-                        console.log("Error writing Podfile");
-                });
-            });
+            fs_1.default.writeFileSync(`${root}/Podfile`, data, "utf-8");
             return newConfig;
         },
     ]);
